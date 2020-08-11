@@ -393,6 +393,7 @@ com.aliware.tianchi.TestServerFilter
 在 `internal-service` 项目中存放了一个 wrk.lua 脚本，选手可以在该项目根目录下执行
 
 ```
+cd adaptiveLoadbalance02/internal-service
 wrk -t4 -c1024 -d90s -T5 --script=./wrk.lua --latency http://localhost:8087/invoke
 ```
 
