@@ -49,7 +49,7 @@ public class MyProvider {
         // 这儿的port根据MyProvider主程序启动的参数不同，指定不同的端口
         protocol.setPort(config.getPort());
         protocol.setThreads(config.getMaxThreadCount());
-        protocol.setHost("192.168.0.106");
+        protocol.setHost("127.0.0.1");
 //        protocol.setHost("0.0.0.0");
 
         // 注意：ServiceConfig为重对象，内部封装了与注册中心的连接，以及开启服务端口

@@ -21,6 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CallbackServiceImpl implements CallbackService {
 
+    private Timer timer = new Timer();
+
+    /**
+     * key: listener type
+     * value: callback listener
+     */
+    private final Map<String, CallbackListener> listeners = new ConcurrentHashMap<>();
+
     /**
      * 构造函数
      */
@@ -34,9 +42,10 @@ public class CallbackServiceImpl implements CallbackService {
 
                 // 该provider服务器的级别，线程总数，活跃线程数，平均耗时
                 String notifyStr = getNotifyStr();
+                String[] msgs = notifyStr.split(",");
 
-                System.out.println(String.format("统计数据【时间:%s,%s】",
-                        nowStr, notifyStr));
+                System.out.println(String.format("【时间:%s】provider服务器级别：%s，线程总数：%s，当前活跃线程数：%s，平均耗时：%s",
+                        nowStr, msgs[0], msgs[1], msgs[2], msgs[3]));
 
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
@@ -90,13 +99,7 @@ public class CallbackServiceImpl implements CallbackService {
         return notifyStr;
     }
 
-    private Timer timer = new Timer();
 
-    /**
-     * key: listener type
-     * value: callback listener
-     */
-    private final Map<String, CallbackListener> listeners = new ConcurrentHashMap<>();
 
 
     @Override

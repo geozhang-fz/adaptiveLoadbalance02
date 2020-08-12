@@ -1,5 +1,7 @@
 package com.aliware.tianchi.comm;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -11,6 +13,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ProviderLoadInfo {
     // 该provider服务器级别：large、medium、small
     private String quota = null;
+    public static Map<String, String> QUOTA_TO_PORT = new HashMap<String, String>();
+
     // provider服务器的线程数量
     private int providerThreadNum = 0;
     // 静态权重
@@ -71,6 +75,12 @@ public class ProviderLoadInfo {
         this.clientLastAvgTimeFlag = clientLastAvgTimeFlag;
     }
 
+    static {
+        QUOTA_TO_PORT.put("small", "20880");
+        QUOTA_TO_PORT.put("medium", "20870");
+        QUOTA_TO_PORT.put("large", "20890");
+    }
+
     /**
      * 构造方法
      */
@@ -92,9 +102,9 @@ public class ProviderLoadInfo {
         if(quota.equals("small")){
             this.weight = 2;
         }else if(quota.equals("medium")){
-            this.weight = 5;
+            this.weight = 9;
         }else if(quota.equals("large")){
-            this.weight = 8;
+            this.weight = 15;
         }else{
             this.weight = 1;
         }

@@ -29,7 +29,6 @@ public class UserLoadBalance implements LoadBalance {
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException {
         int size = invokers.size();
 
-
         /* 计算总权重 */
         int totalWeight = 0;
         // 用于记录可用线程数大于0的provider服务器的编号
@@ -37,7 +36,6 @@ public class UserLoadBalance implements LoadBalance {
         // 用于记录可用线程数大于0的provider服务器的动态权重
         List<Integer> curWeightArr = new ArrayList<>();
 
-        // 获取耗时最大的那个provider服务器，通过invoker获取
         // 遍历invokers
         for (int i = 0; i < size; i++) {
             Invoker<T> invoker = invokers.get(i);
@@ -58,6 +56,7 @@ public class UserLoadBalance implements LoadBalance {
             }//if (providerLoadInfo != null)
         }//for
 
+        /* 若provider服务器群满负荷 */
         // 若没有可用线程数大于0的provider服务器
         if (availProviderArr.isEmpty()) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
