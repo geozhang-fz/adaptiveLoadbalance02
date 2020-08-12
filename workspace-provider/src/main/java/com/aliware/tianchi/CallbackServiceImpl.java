@@ -15,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author daofeng.xjf
  * <p>
  * 该类实现provider服务器端向Gateway服务器端动态推送消息
- * provider服务器接收Gateway服务器 CallbackListener 的注册，并执行推送能力
+ * provider服务器接收Gateway服务器 CallbackListener 的注册，并执行消息推送
+ * provider服务器每 5 秒向Gateway服务器端推送消息
  * （可选接口）
  */
 public class CallbackServiceImpl implements CallbackService {
@@ -47,7 +48,7 @@ public class CallbackServiceImpl implements CallbackService {
                             listeners.remove(entry.getKey());
                         }
                     }//for
-                    ProviderLoadManager.resetSpendTime();
+                    ProviderManager.resetSpendTime();
                 }//if
             }
         }, 0, 5000);
@@ -69,7 +70,7 @@ public class CallbackServiceImpl implements CallbackService {
         // 获取系统参数，provider服务器的级别：large、medium、small
         String quota = System.getProperty("quota");
         // 获取当前provider服务器的负载信息
-        ProviderLoadInfo providerLoadInfo = ProviderLoadManager.getProviderLoadInfo();
+        ProviderLoadInfo providerLoadInfo = ProviderManager.getProviderLoadInfo();
         long activeThreadNum = providerLoadInfo.getActiveThreadNum().get();
         long spendTimeTotal = providerLoadInfo.getSpendTimeTotal().get();
         long reqCount = providerLoadInfo.getReqCount().get();

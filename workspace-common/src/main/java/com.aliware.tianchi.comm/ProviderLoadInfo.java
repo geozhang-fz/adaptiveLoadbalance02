@@ -1,5 +1,7 @@
 package com.aliware.tianchi.comm;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -23,6 +25,51 @@ public class ProviderLoadInfo {
     private long lastFailTime;
     private int avgSpendTime;
 
+    private AtomicLong clientTotalTimeSpent = new AtomicLong(0);
+    private AtomicInteger clientReqCount = new AtomicInteger(0);
+    private volatile int clientAvgTimeSpent = 0;
+    private volatile long clientLastAvgTime = System.currentTimeMillis();
+    private AtomicBoolean clientLastAvgTimeFlag = new AtomicBoolean(false);
+
+    public AtomicLong getClientTotalTimeSpent() {
+        return clientTotalTimeSpent;
+    }
+
+    public void setClientTotalTimeSpent(AtomicLong clientTotalTimeSpent) {
+        this.clientTotalTimeSpent = clientTotalTimeSpent;
+    }
+
+    public AtomicInteger getClientReqCount() {
+        return clientReqCount;
+    }
+
+    public void setClientReqCount(AtomicInteger clientReqCount) {
+        this.clientReqCount = clientReqCount;
+    }
+
+    public int getClientAvgTimeSpent() {
+        return clientAvgTimeSpent;
+    }
+
+    public void setClientAvgTimeSpent(int clientAvgTimeSpent) {
+        this.clientAvgTimeSpent = clientAvgTimeSpent;
+    }
+
+    public long getClientLastAvgTime() {
+        return clientLastAvgTime;
+    }
+
+    public void setClientLastAvgTime(long clientLastAvgTime) {
+        this.clientLastAvgTime = clientLastAvgTime;
+    }
+
+    public AtomicBoolean getClientLastAvgTimeFlag() {
+        return clientLastAvgTimeFlag;
+    }
+
+    public void setClientLastAvgTimeFlag(AtomicBoolean clientLastAvgTimeFlag) {
+        this.clientLastAvgTimeFlag = clientLastAvgTimeFlag;
+    }
 
     /**
      * 构造方法
@@ -39,6 +86,7 @@ public class ProviderLoadInfo {
     public ProviderLoadInfo(String quota, int providerThreadNum){
 
         this.quota = quota;
+        // 在实际线程池大小基础上，打8折
         this.providerThreadNum = (int) (providerThreadNum * 0.8);
 
         if(quota.equals("small")){
