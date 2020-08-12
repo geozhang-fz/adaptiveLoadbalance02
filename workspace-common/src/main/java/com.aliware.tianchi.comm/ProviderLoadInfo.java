@@ -35,45 +35,6 @@ public class ProviderLoadInfo {
     private volatile long clientLastAvgTime = System.currentTimeMillis();
     private AtomicBoolean clientLastAvgTimeFlag = new AtomicBoolean(false);
 
-    public AtomicLong getClientTotalTimeSpent() {
-        return clientTotalTimeSpent;
-    }
-
-    public void setClientTotalTimeSpent(AtomicLong clientTotalTimeSpent) {
-        this.clientTotalTimeSpent = clientTotalTimeSpent;
-    }
-
-    public AtomicInteger getClientReqCount() {
-        return clientReqCount;
-    }
-
-    public void setClientReqCount(AtomicInteger clientReqCount) {
-        this.clientReqCount = clientReqCount;
-    }
-
-    public int getClientAvgTimeSpent() {
-        return clientAvgTimeSpent;
-    }
-
-    public void setClientAvgTimeSpent(int clientAvgTimeSpent) {
-        this.clientAvgTimeSpent = clientAvgTimeSpent;
-    }
-
-    public long getClientLastAvgTime() {
-        return clientLastAvgTime;
-    }
-
-    public void setClientLastAvgTime(long clientLastAvgTime) {
-        this.clientLastAvgTime = clientLastAvgTime;
-    }
-
-    public AtomicBoolean getClientLastAvgTimeFlag() {
-        return clientLastAvgTimeFlag;
-    }
-
-    public void setClientLastAvgTimeFlag(AtomicBoolean clientLastAvgTimeFlag) {
-        this.clientLastAvgTimeFlag = clientLastAvgTimeFlag;
-    }
 
     static {
         QUOTA_TO_PORT.put("small", "20880");
@@ -174,5 +135,46 @@ public class ProviderLoadInfo {
 
     public void setAvgSpendTime(int avgSpendTime) {
         this.avgSpendTime = avgSpendTime;
+    }
+
+
+    public AtomicLong getClientTotalTimeSpent() {
+        return clientTotalTimeSpent;
+    }
+
+    public void setClientTotalTimeSpent(AtomicLong clientTotalTimeSpent) {
+        this.clientTotalTimeSpent = clientTotalTimeSpent;
+    }
+
+    public AtomicInteger getClientReqCount() {
+        return clientReqCount;
+    }
+
+    public void setClientReqCount(AtomicInteger clientReqCount) {
+        this.clientReqCount = clientReqCount;
+    }
+
+    public int getClientAvgTimeSpent() {
+        return clientAvgTimeSpent;
+    }
+
+    public void setClientAvgTimeSpent(int clientAvgTimeSpent) {
+        this.clientAvgTimeSpent = clientAvgTimeSpent;
+    }
+
+    public long getClientLastAvgTime() {
+        return clientLastAvgTime;
+    }
+
+    public void setClientLastAvgTime(long clientLastAvgTime) {
+        this.clientLastAvgTime = clientLastAvgTime;
+    }
+
+    public AtomicBoolean getClientLastAvgTimeFlag() {
+        return clientLastAvgTimeFlag;
+    }
+
+    public void setClientLastAvgTimeFlag(AtomicBoolean clientLastAvgTimeFlag) {
+        this.clientLastAvgTimeFlag = clientLastAvgTimeFlag;
     }
 }
