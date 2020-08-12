@@ -83,6 +83,10 @@ public class InitProviderService {
         return reference;
     }
 
+    /**
+     * 初始化Gateway服务器端的监听器
+     * 每个监听器针对一台provider服务器，监听provider服务器推送的信息
+     */
     private void initCallbackListener() {
         Set<String> supportedExtensions =
                 ExtensionLoader.getExtensionLoader(CallbackListener.class).getSupportedExtensions();
