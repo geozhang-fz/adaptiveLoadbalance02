@@ -13,7 +13,6 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * Dubbo，创建provider服务器群，dubbo服务器的端口配置
  * @author guohaoice@gmail.com
  */
 public class BaseConfig {
@@ -26,13 +25,6 @@ public class BaseConfig {
         this.port = port;
     }
 
-    /**
-     * 实际通过该方法来构造BaseConfig对象
-     * 创建provider服务器群的端口配置
-     * 在该方法内会调用BaseConfig类的构造方法
-     * 依据MyProvider主程序启动参数不同，指定不同的端口
-     * @return
-     */
     public static BaseConfig loadConf() {
         Gson gson = new Gson();
         String origin = loadResourceAsString("provider-conf.json");
