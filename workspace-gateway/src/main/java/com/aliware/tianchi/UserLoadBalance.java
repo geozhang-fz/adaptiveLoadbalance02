@@ -49,11 +49,11 @@ public class UserLoadBalance implements LoadBalance {
                 AtomicInteger limiter = UserLoadBalanceManager.getAtomicInteger(invoker);
                 int availThreadNum = limiter.get();
                 if (availThreadNum > 0) {
+                    int weight = providerLoadInfo.getWeight();
                     availProviderArr.add(i);
                     // 将可用线程数作为该provider服务器的权重
-                    curWeightArr.add(availThreadNum);
-
-                    totalWeight = totalWeight + availThreadNum;
+                    curWeightArr.add(weight);
+                    totalWeight += weight;
                 }//if (availThreadNum > 0)
             }//if (providerLoadInfo != null)
         }//for
@@ -71,6 +71,7 @@ public class UserLoadBalance implements LoadBalance {
         /* 使用随机权重算法 */
         // 在0~totalWeight之间取一个随机数
         int offsetWeight = ThreadLocalRandom.current().nextInt(totalWeight);
+//        int offsetWeight = 6;
 
         for (int i = 0; i < availProviderArr.size(); i++) {
             int index = availProviderArr.get(i);

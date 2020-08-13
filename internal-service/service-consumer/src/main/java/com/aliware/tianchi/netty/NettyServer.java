@@ -53,14 +53,11 @@ public class NettyServer {
 
         /* 启动服务器(并绑定端口) */
         // consumer对外作为一个服务器，这是这个服务器的地址和端口
-//        String host = "0.0.0.0";
         String host = "127.0.0.1";
         int port = 8087;
-//        int port = 20880;
         try {
             // Consumer对外作为服务器，监听请求的地址和端口
             ChannelFuture f = bootstrap.bind(host, 8087).sync();
-//            ChannelFuture f = bootstrap.bind(host, 20880).sync();
             logger.info("Dubbo proxy started, host is {}, port is {}.", host, port);
 
             /* 监听通道中的“关闭”事件 */
