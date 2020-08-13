@@ -24,16 +24,7 @@ public class ProviderLoadInfo {
     // 当前任务数量
     private AtomicLong activeThreadNum = new AtomicLong(0);
     // 总耗时(上一个5秒)
-    private AtomicLong spendTimeTotal = new AtomicLong(0);
-    // 上次请求失败时间
-    private long lastFailTime;
-    private int avgSpendTime;
-
-    private AtomicLong clientTotalTimeSpent = new AtomicLong(0);
-    private AtomicInteger clientReqCount = new AtomicInteger(0);
-    private volatile int clientAvgTimeSpent = 0;
-    private volatile long clientLastAvgTime = System.currentTimeMillis();
-    private AtomicBoolean clientLastAvgTimeFlag = new AtomicBoolean(false);
+//    private AtomicLong spendTimeTotal = new AtomicLong(0);
 
 
     static {
@@ -113,68 +104,4 @@ public class ProviderLoadInfo {
         this.activeThreadNum = activeThreadNum;
     }
 
-    public AtomicLong getSpendTimeTotal() {
-        return spendTimeTotal;
-    }
-
-    public void setSpendTimeTotal(AtomicLong spendTimeTotal) {
-        this.spendTimeTotal = spendTimeTotal;
-    }
-
-    public long getLastFailTime() {
-        return lastFailTime;
-    }
-
-    public void setLastFailTime(long lastFailTime) {
-        this.lastFailTime = lastFailTime;
-    }
-
-    public int getAvgSpendTime() {
-        return avgSpendTime;
-    }
-
-    public void setAvgSpendTime(int avgSpendTime) {
-        this.avgSpendTime = avgSpendTime;
-    }
-
-
-    public AtomicLong getClientTotalTimeSpent() {
-        return clientTotalTimeSpent;
-    }
-
-    public void setClientTotalTimeSpent(AtomicLong clientTotalTimeSpent) {
-        this.clientTotalTimeSpent = clientTotalTimeSpent;
-    }
-
-    public AtomicInteger getClientReqCount() {
-        return clientReqCount;
-    }
-
-    public void setClientReqCount(AtomicInteger clientReqCount) {
-        this.clientReqCount = clientReqCount;
-    }
-
-    public int getClientAvgTimeSpent() {
-        return clientAvgTimeSpent;
-    }
-
-    public void setClientAvgTimeSpent(int clientAvgTimeSpent) {
-        this.clientAvgTimeSpent = clientAvgTimeSpent;
-    }
-
-    public long getClientLastAvgTime() {
-        return clientLastAvgTime;
-    }
-
-    public void setClientLastAvgTime(long clientLastAvgTime) {
-        this.clientLastAvgTime = clientLastAvgTime;
-    }
-
-    public AtomicBoolean getClientLastAvgTimeFlag() {
-        return clientLastAvgTimeFlag;
-    }
-
-    public void setClientLastAvgTimeFlag(AtomicBoolean clientLastAvgTimeFlag) {
-        this.clientLastAvgTimeFlag = clientLastAvgTimeFlag;
-    }
 }

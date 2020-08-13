@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 必选接口，核心接口
  * 此类可以修改实现，不可以移动类或者修改包名
  * 选手需要基于此类实现自己的负载均衡算法
+ *
+ * 使用随机权重算法(2): 可用线程数作为权重计算依据
  */
 public class UserLoadBalance implements LoadBalance {
 

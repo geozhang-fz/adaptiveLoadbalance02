@@ -405,6 +405,8 @@ wrk -t4 -c1024 -d90s -T5 --script=./wrk.lua --latency http://localhost:8087/invo
 
 添加成员地址：https://code.aliyun.com/{你的账号名称}/adaptive-loadbalance/project_members
 
+https://code.aliyun.com/geozhang_fz/adaptive-loadbalance/project_members
+
 评测地址  https://tianchi.aliyun.com/competition/entrance/231740/introduction
 
 提交请使用 git@开头的 ssh 仓库地址
