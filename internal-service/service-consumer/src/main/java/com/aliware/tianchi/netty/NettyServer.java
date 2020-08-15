@@ -45,7 +45,7 @@ public class NettyServer {
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-        String host = "0.0.0.0";
+        String host = "127.0.0.1";
         int port = 8087;
         try {
             ChannelFuture f = bootstrap.bind(host, 8087).sync();

@@ -2,7 +2,6 @@ package com.aliware.tianchi.comm;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -25,6 +24,11 @@ public class ProviderLoadInfo {
     private AtomicLong activeThreadNum = new AtomicLong(0);
     // 总耗时(上一个5秒)
 //    private AtomicLong spendTimeTotal = new AtomicLong(0);
+    private AtomicInteger curWeight = new AtomicInteger(0);
+
+    public AtomicInteger getCurWeight() {
+        return curWeight;
+    }
 
 
     static {
@@ -46,7 +50,7 @@ public class ProviderLoadInfo {
      * @param providerThreadNum
      */
     public ProviderLoadInfo(String quota, int providerThreadNum){
-
+        System.out.println("Initialize the providerLoadInfo " + quota);
         this.quota = quota;
         // 在实际线程池大小基础上，打8折
         this.providerThreadNum = (int) (providerThreadNum * 0.8);

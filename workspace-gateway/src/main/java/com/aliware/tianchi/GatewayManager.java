@@ -11,11 +11,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 负载均衡管理器，负责协调provider服务器群
  */
-public class UserLoadBalanceManager {
+public class GatewayManager {
     // key: IP:Port, 该provider服务器的地址，value: ProviderInfo对象
     public static Map<String, ProviderLoadInfo> loadInfoMaps = new ConcurrentHashMap<>();
     // key: IP:Port, 该provider服务器的地址，value：该provider服务器可用线程数
     private static Map<String, AtomicInteger> limitMap = new ConcurrentHashMap<String,AtomicInteger>();
+
 
 //    private static final String HOST_PREFIX = "provider-";
     private static final String HOST_PREFIX = "127.0.0.1";
@@ -66,6 +67,7 @@ public class UserLoadBalanceManager {
         ProviderLoadInfo providerLoadInfo = loadInfoMaps.get(add);
         if (providerLoadInfo == null) {
             // 初始化
+            System.out.println("Initialize the providerLoadInfo " + quota);
             providerLoadInfo = new ProviderLoadInfo(quota, providerThreadNum);
             loadInfoMaps.put(add, providerLoadInfo);
         }

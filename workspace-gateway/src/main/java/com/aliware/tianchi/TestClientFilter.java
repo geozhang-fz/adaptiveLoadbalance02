@@ -5,8 +5,6 @@ import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -24,8 +22,8 @@ public class TestClientFilter implements Filter {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         // 获取invoker对应的provider服务器可用线程数
-        AtomicInteger limiter = UserLoadBalanceManager.getAtomicInteger(invoker);
-        ProviderLoadInfo providerLoadInfo = UserLoadBalanceManager.getProviderLoadInfo(invoker);
+        AtomicInteger limiter = GatewayManager.getAtomicInteger(invoker);
+        ProviderLoadInfo providerLoadInfo = GatewayManager.getProviderLoadInfo(invoker);
 
         /* 若为空，limitMap中无记录，表示初次调用该provider服务器 */
         if (limiter == null) {
