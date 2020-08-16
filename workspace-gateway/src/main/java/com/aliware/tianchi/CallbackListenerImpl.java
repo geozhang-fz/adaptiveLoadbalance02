@@ -3,12 +3,9 @@ package com.aliware.tianchi;
 import org.apache.dubbo.rpc.listener.CallbackListener;
 
 /**
- * @author daofeng.xjf
- *
  * Gateway服务器端的监听器
  * 该类获取provider服务器端的推送信息，与 CallbackService 搭配使用
  * （可选接口）
- *
  */
 public class CallbackListenerImpl implements CallbackListener {
 

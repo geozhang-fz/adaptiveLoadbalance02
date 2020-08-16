@@ -9,12 +9,9 @@ import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcException;
 
 /**
- * @author daofeng.xjf
- *
  * 服务端过滤器
  * 在provider服务器端拦截请求和响应，捕获 rpc 调用时产生、provider服务器端返回的已知异常。
  * 即为远程调用前后包裹上代理
- *
  * （可选接口）
  */
 // 如果过滤器使用者属于Constants.PROVIDER（服务提供方）就激活使用这个过滤器

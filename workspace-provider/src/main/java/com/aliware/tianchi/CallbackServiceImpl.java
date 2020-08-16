@@ -12,8 +12,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author daofeng.xjf
- * <p>
  * 该类实现provider服务器端向Gateway服务器端动态推送消息
  * provider服务器接收Gateway服务器 CallbackListener 的注册，并执行消息推送
  * provider服务器每 5 秒向Gateway服务器端推送消息
@@ -45,7 +43,7 @@ public class CallbackServiceImpl implements CallbackService {
                 String[] msgs = notifyStr.split(",");
 
                 System.out.println(String.format(
-                    "【时间:%s】provider服务器级别：%s，线程总数：%s，当前活跃线程数：%s，请求总数：%s",
+                    "【%s】provider服务器级别：%s，线程总数：%s，当前活跃线程数：%s，请求总数：%s",
                     nowStr, msgs[0], msgs[1], msgs[2], msgs[3])
                 );
 

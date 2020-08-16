@@ -32,9 +32,9 @@ public class UserLoadBalance implements LoadBalance {
 //        return simpleRandomWeight(invokers);
 //        return simpleRandom(invokers);
 
-//        return simpleRandomActiveThread(invokers);
+        return simpleRandomActiveThread(invokers);
 
-        return RoundRobin2(invokers);
+//        return RoundRobin2(invokers);
 
 
     }
