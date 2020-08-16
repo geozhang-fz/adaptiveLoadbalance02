@@ -1,14 +1,23 @@
 package com.aliware.tianchi;
 
-public class Weight {
+public class Context {
     private int id;
     private Integer weight;
     private Integer curWeight;
+    private static Integer position = 0;
 
-    public Weight(int id, Integer weight, Integer curWeight) {
+
+
+    /* Constructor */
+    public Context(int id, Integer weight, Integer curWeight) {
         this.id = id;
         this.weight = weight;
         this.curWeight = curWeight;
+    }
+
+    /* Getter & Setter */
+    public static Integer getPosition() {
+        return position;
     }
 
     public int getId() {
@@ -33,5 +42,15 @@ public class Weight {
 
     public void setCurWeight(Integer curWeight) {
         this.curWeight = curWeight;
+    }
+
+    /* Common Methods */
+    private static final Object lockP = new Object();
+
+    public static Integer incrementAndGetPos() {
+        synchronized (lockP) {
+            position++;
+            return position;
+        }
     }
 }

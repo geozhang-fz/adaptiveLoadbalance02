@@ -25,16 +25,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class UserLoadBalance implements LoadBalance {
 
-    private static Map<Integer, Weight> weights = new HashMap<Integer, Weight>();
+    private static final int INVOKERS_SIZE = 3;
+
+    private static Context[] contextArr = new Context[INVOKERS_SIZE];
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException {
 //        return simpleRandomWeight(invokers);
 //        return simpleRandom(invokers);
 
-        return simpleRandomActiveThread(invokers);
+//        return simpleRandomActiveThread(invokers);
 
-//        return RoundRobin2(invokers);
+        return RoundRobinWeight1(invokers);
+
+//        return RoundRobinWeight2(invokers);
 
 
     }
@@ -116,38 +120,73 @@ public class UserLoadBalance implements LoadBalance {
         return invokers.get(ThreadLocalRandom.current().nextInt(invokers.size()));
     }//simpleRandomActiveThread
 
-    public static <T> Invoker<T> RoundRobin2(List<Invoker<T>> invokers) {
+    public static <T> Invoker<T> RoundRobinWeight1(List<Invoker<T>> invokers) {
+
+        int[] weights = new int[INVOKERS_SIZE];
+
+        weights[0] = 3;
+        weights[0] = 7;
+        weights[0] = 10;
+
+//        /* 如果weights为空，就初始化 */
+//        if (contextArr[0] == null) {
+//            contextArr[0] = new Context(0, 3, 0);
+//            contextArr[1] = new Context(1, 7, 0);
+//            contextArr[2] = new Context(2, 10, 0);
+//        }
+
+        /* 计算总权重 */
+        int totalWeight = 0;
+        for (int w: weights) {
+            totalWeight += w;
+        }
+
+        int pos = Context.incrementAndGetPos() % totalWeight;
+
+        if (pos < weights[0]) {
+            return invokers.get(0);
+        }else if (pos >= weights[0] && pos < weights[0] + weights[1]) {
+            return invokers.get(1);
+        } else {
+            return invokers.get(2);
+        }
+    }
+
+    public static <T> Invoker<T> RoundRobinWeight2(List<Invoker<T>> invokers) {
+
 //            System.out.println("map is not empty.");
 
 
         /* 如果weights为空，就初始化 */
-        if (weights.isEmpty()) {
-            weights.put(0, new Weight(0, 3, 0));
-            weights.put(1, new Weight(1, 7, 0));
-            weights.put(2, new Weight(2, 10, 0));
+        if (contextArr[0] == null) {
+            contextArr[0] = new Context(0, 3, 0);
+            contextArr[1] = new Context(1, 7, 0);
+            contextArr[2] = new Context(2, 10, 0);
         }
 
         /* 1.计算每台机器的CurWeight */
-        for (Weight w: weights.values()) {
+        for (Context w: contextArr) {
             w.setCurWeight(w.getWeight() + w.getCurWeight());
         }
 
         /* 2.计算curWeight的最大值 */
-        Weight maxCurWeight = weights.get(0);
-        for (Weight w: weights.values()) {
-            if (w == null || w.getCurWeight() > maxCurWeight.getCurWeight()) {
-                maxCurWeight = w;
+        Context maxCurContext = contextArr[0];
+        for (Context w: contextArr) {
+            if (w == null || w.getCurWeight() > maxCurContext.getCurWeight()) {
+                maxCurContext = w;
             }
         }
 
         /* 3.更新curWeight的最大值 */
         // 统计总权重
         int totalWeight = 0;
-        for (Weight w: weights.values()) {
+        for (Context w: contextArr) {
             totalWeight += w.getWeight();
         }
-        maxCurWeight.setCurWeight(maxCurWeight.getCurWeight() - totalWeight);
+        maxCurContext.setCurWeight(maxCurContext.getCurWeight() - totalWeight);
 
-        return invokers.get(maxCurWeight.getId());
+        return invokers.get(maxCurContext.getId());
     }//RoundRobin2
+
+
 }
