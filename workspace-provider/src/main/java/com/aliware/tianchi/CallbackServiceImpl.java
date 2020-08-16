@@ -12,14 +12,20 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author daofeng.xjf
- * <p>
  * 该类实现provider服务器端向Gateway服务器端动态推送消息
  * provider服务器接收Gateway服务器 CallbackListener 的注册，并执行消息推送
  * provider服务器每 5 秒向Gateway服务器端推送消息
  * （可选接口）
  */
 public class CallbackServiceImpl implements CallbackService {
+
+    private Timer timer = new Timer();
+
+    /**
+     * key: listener type
+     * value: callback listener
+     */
+    private final Map<String, CallbackListener> listeners = new ConcurrentHashMap<>();
 
     /**
      * 构造函数
@@ -32,11 +38,14 @@ public class CallbackServiceImpl implements CallbackService {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String nowStr = sdf.format(now);
 
-                // 该provider服务器的级别，线程总数，活跃线程数，平均耗时
+                // 该provider服务器的级别，线程总数，活跃线程数，请求数
                 String notifyStr = getNotifyStr();
+                String[] msgs = notifyStr.split(",");
 
-                System.out.println(String.format("统计数据【时间:%s,%s】",
-                        nowStr, notifyStr));
+                System.out.println(String.format(
+                    "【%s】provider服务器级别：%s，线程总数：%s，当前活跃线程数：%s，请求总数：%s",
+                    nowStr, msgs[0], msgs[1], msgs[2], msgs[3])
+                );
 
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
@@ -48,7 +57,7 @@ public class CallbackServiceImpl implements CallbackService {
                             listeners.remove(entry.getKey());
                         }
                     }//for
-                    ProviderManager.resetSpendTime();
+                    ProviderManager.reset();
                 }//if
             }
         }, 0, 5000);
@@ -56,6 +65,7 @@ public class CallbackServiceImpl implements CallbackService {
 
     /**
      * 生成推送给Gateway服务器的信息
+     *
      * @return notifyStr: 该provider服务器的信息，包括该provider服务器的级别，线程总数，活跃线程数，平均耗时
      */
     private String getNotifyStr() {
@@ -72,31 +82,18 @@ public class CallbackServiceImpl implements CallbackService {
         // 获取当前provider服务器的负载信息
         ProviderLoadInfo providerLoadInfo = ProviderManager.getProviderLoadInfo();
         long activeThreadNum = providerLoadInfo.getActiveThreadNum().get();
-        long spendTimeTotal = providerLoadInfo.getSpendTimeTotal().get();
         long reqCount = providerLoadInfo.getReqCount().get();
-        long avgTime = 0;
-        if(reqCount != 0){
-            avgTime = spendTimeTotal/reqCount;
-        }
 
         // 整理推送给Gateway服务器的信息：
-        // 该provider服务器的级别，线程总数，活跃线程数，平均耗时
+        // 该provider服务器的级别，线程总数，活跃线程数，请求总数
         String notifyStr = String.format("%s,%s,%s,%s",
                 quota,
                 providerThreadNum,
                 activeThreadNum,
-                avgTime);
+                reqCount);
 
         return notifyStr;
     }
-
-    private Timer timer = new Timer();
-
-    /**
-     * key: listener type
-     * value: callback listener
-     */
-    private final Map<String, CallbackListener> listeners = new ConcurrentHashMap<>();
 
 
     @Override

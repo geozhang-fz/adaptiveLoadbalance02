@@ -29,16 +29,13 @@ public class ProviderManager {
         providerLoadInfo.getActiveThreadNum().decrementAndGet();
         // 该provider服务器处理的请求总数加1
         providerLoadInfo.getReqCount().incrementAndGet();
-        // 该provider服务器总耗时累加
-        providerLoadInfo.getSpendTimeTotal().addAndGet(expend);
     }
 
     public static ProviderLoadInfo getProviderLoadInfo() {
         return providerLoadInfo;
     }
 
-    public static void resetSpendTime(){
-        providerLoadInfo.getSpendTimeTotal().set(0L);
+    public static void reset(){
         providerLoadInfo.getReqCount().set(0L);
     }
 }

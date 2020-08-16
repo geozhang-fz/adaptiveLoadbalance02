@@ -29,16 +29,12 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.rtsp.RtspResponseStatuses.INTERNAL_SERVER_ERROR;
 
-/**
- * Netty，Gateway对外作为Netty服务器，该类为Netty服务器的HTTP代理器Handler
- */
 @ChannelHandler.Sharable
 public class HttpProcessHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     static final ApplicationConfig application = new ApplicationConfig();
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpProcessHandler.class);
     private volatile boolean init = false;
     private HashInterface hashInterface;
-    /* 初始化dubbo的provider服务 */
     private InitProviderService initService = new InitProviderService();
     private String salt = System.getProperty("salt");
 
@@ -87,25 +83,18 @@ public class HttpProcessHandler extends SimpleChannelInboundHandler<FullHttpRequ
 //        ctx.close();
     }
 
-    /**
-     * 作为后端服务器群的客户端，该函数做dubbo客户端的服务配置
-     * @return
-     */
+
     private HashInterface getServiceStub() {
-        /* 指定应用名，为consumer指定一个名字 */
         application.setName("service-gateway");
 
-        /* 设置注册中心 */
-        // 因为采用直连方式，故不使用注册中心
+        // 直连方式，不使用注册中心
         RegistryConfig registry = new RegistryConfig();
         registry.setAddress("N/A");
 
-        /* 声明consumer诉求的远程服务的接口；生成远程服务代理 */
         ReferenceConfig<HashInterface> reference = new ReferenceConfig<>();
         reference.setApplication(application);
         reference.setRegistry(registry);
         reference.setInterface(HashInterface.class);
-        // toUrls()方法生成一个URL对象的数组，赋予urls引用
         List<URL> urls = reference.toUrls();
         Map<String, String> attributes = new HashMap<>();
         attributes.put("loadbalance", "user");
