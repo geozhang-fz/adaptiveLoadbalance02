@@ -14,13 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
- * @author daofeng.xjf
- * <p>
  * 负载均衡扩展接口
  * 必选接口，核心接口
  * 此类可以修改实现，不可以移动类或者修改包名
  * 选手需要基于此类实现自己的负载均衡算法
- * <p>
  * 使用随机权重算法(2): 可用线程数作为权重计算依据
  */
 public class UserLoadBalance implements LoadBalance {
@@ -31,12 +28,14 @@ public class UserLoadBalance implements LoadBalance {
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException {
+
 //        return simpleRandomWeight(invokers);
+
 //        return simpleRandom(invokers);
 
-//        return simpleRandomActiveThread(invokers);
+        return simpleRandomActiveThread(invokers);
 
-        return RoundRobinWeight1(invokers);
+//        return RoundRobinWeight1(invokers);
 
 //        return RoundRobinWeight2(invokers);
 
@@ -45,18 +44,31 @@ public class UserLoadBalance implements LoadBalance {
 
     public static <T> Invoker<T> simpleRandomWeight(List<Invoker<T>> invokers) {
 
-        int offsetWeight = ThreadLocalRandom.current().nextInt(20);
+        int[] weights = new int[INVOKERS_SIZE];
 
-        if (offsetWeight < 3) {
+        // 设置静态权重
+        weights[0] = 3;
+        weights[1] = 7;
+        weights[2] = 10;
+
+        /* 计算总权重 */
+        int totalWeight = 0;
+        for (int w: weights) {
+            totalWeight += w;
+        }
+
+        /* 随机选取一台服务器 */
+        // 取0~totalWeight内随机整数
+        int offsetWeight = ThreadLocalRandom.current().nextInt(totalWeight);
+
+        if (offsetWeight < weights[0]) {
             return invokers.get(0);
         }
-        if (offsetWeight >= 3 && offsetWeight < 10) {
+        if (offsetWeight >= weights[0] && offsetWeight < weights[0] + weights[1]) {
             return invokers.get(1);
-        }
-        if (offsetWeight >= 10 && offsetWeight < 20) {
+        } else {
             return invokers.get(2);
         }
-        return invokers.get(2);
     }
 
     public static <T> Invoker<T> simpleRandom(List<Invoker<T>> invokers) {
@@ -67,6 +79,7 @@ public class UserLoadBalance implements LoadBalance {
         int size = invokers.size();
 
         /* 计算总权重 */
+        // 总权重为各 provider 可用线程数之和
         int totalWeight = 0;
         // 用于记录可用线程数大于0的provider服务器的编号
         List<Integer> availProviderArr = new ArrayList<>();
@@ -81,21 +94,19 @@ public class UserLoadBalance implements LoadBalance {
 
             if (providerLoadInfo != null) {
                 // 获取当前可用线程数
-                AtomicInteger limiter = GatewayManager.getAtomicInteger(invoker);
+                AtomicInteger limiter = GatewayManager.getLimiter(invoker);
                 int availThreadNum = limiter.get();
                 if (availThreadNum > 0) {
-                    int activeThreadNum = providerLoadInfo.getActiveThreadNum().intValue();
                     availProviderArr.add(i);
                     // 将可用线程数作为该provider服务器的权重
-                    curWeightArr.add(activeThreadNum);
-                    totalWeight += activeThreadNum;
+                    curWeightArr.add(availThreadNum);
+                    totalWeight += availThreadNum;
                 }//if (availThreadNum > 0)
             }//if (providerLoadInfo != null)
         }//for
 
         /* 若provider服务器群满负荷 */
-        // 若没有可用线程数大于0的provider服务器
-        if (availProviderArr.isEmpty()) {
+        if (availProviderArr.isEmpty()) { // 若没有可用线程数大于0的provider服务器
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String nowStr = sdf.format(new Date());
             System.out.println(nowStr + "，服务器满负荷");
@@ -124,16 +135,10 @@ public class UserLoadBalance implements LoadBalance {
 
         int[] weights = new int[INVOKERS_SIZE];
 
+        // 设置静态权重
         weights[0] = 3;
-        weights[0] = 7;
-        weights[0] = 10;
-
-//        /* 如果weights为空，就初始化 */
-//        if (contextArr[0] == null) {
-//            contextArr[0] = new Context(0, 3, 0);
-//            contextArr[1] = new Context(1, 7, 0);
-//            contextArr[2] = new Context(2, 10, 0);
-//        }
+        weights[1] = 7;
+        weights[2] = 10;
 
         /* 计算总权重 */
         int totalWeight = 0;
@@ -141,6 +146,7 @@ public class UserLoadBalance implements LoadBalance {
             totalWeight += w;
         }
 
+        /* 轮询选取一台provider服务器 */
         int pos = Context.incrementAndGetPos() % totalWeight;
 
         if (pos < weights[0]) {
@@ -164,16 +170,17 @@ public class UserLoadBalance implements LoadBalance {
             contextArr[2] = new Context(2, 10, 0);
         }
 
-        /* 1.计算每台机器的CurWeight */
-        for (Context w: contextArr) {
-            w.setCurWeight(w.getWeight() + w.getCurWeight());
+        /* 1.计算每台机器的动态权重CurWeight */
+        for (Context context: contextArr) {
+            context.setCurWeight(context.getWeight() + context.getCurWeight());
         }
 
-        /* 2.计算curWeight的最大值 */
+        /* 2.找到curWeight最大值对应的context对象 */
+        // 防空指针，初始化最大值指向第0台provider
         Context maxCurContext = contextArr[0];
-        for (Context w: contextArr) {
-            if (w == null || w.getCurWeight() > maxCurContext.getCurWeight()) {
-                maxCurContext = w;
+        for (Context context: contextArr) {
+            if (context == null || context.getCurWeight() > maxCurContext.getCurWeight()) {
+                maxCurContext = context;
             }
         }
 
@@ -183,8 +190,10 @@ public class UserLoadBalance implements LoadBalance {
         for (Context w: contextArr) {
             totalWeight += w.getWeight();
         }
+        // 更新curWeight的最大值
         maxCurContext.setCurWeight(maxCurContext.getCurWeight() - totalWeight);
 
+        // 返回最大动态权重对应的provider
         return invokers.get(maxCurContext.getId());
     }//RoundRobin2
 

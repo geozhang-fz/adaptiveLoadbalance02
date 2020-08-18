@@ -22,7 +22,7 @@ public class TestClientFilter implements Filter {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         // 获取invoker对应的provider服务器可用线程数
-        AtomicInteger limiter = GatewayManager.getAtomicInteger(invoker);
+        AtomicInteger limiter = GatewayManager.getLimiter(invoker);
         ProviderLoadInfo providerLoadInfo = GatewayManager.getProviderLoadInfo(invoker);
 
         /* 若为空，limitMap中无记录，表示初次调用该provider服务器 */
@@ -35,12 +35,23 @@ public class TestClientFilter implements Filter {
 
         /* 否则，limitMap中存在记录，非初次调用 */
         // 记录远程调用的开始时间
-        long startTime = System.currentTimeMillis();
+//        long startTime = System.currentTimeMillis();
         // 该provider服务器可用线程数-1
         limiter.decrementAndGet();
 
         // 获取远程调用的结果
         Result result = invoker.invoke(invocation);
+
+        if(result instanceof AsyncRpcResult){
+            AsyncRpcResult asyncResult = (AsyncRpcResult) result;
+            // 异步等待结果
+            asyncResult.getResultFuture().whenComplete((actual, t) -> {
+                // 服务端可用线程数+1
+                limiter.incrementAndGet();
+//                long endTime = System.currentTimeMillis();
+//                long timeSpent = endTime - startTime;
+            });
+        }
         return result;
     }
 

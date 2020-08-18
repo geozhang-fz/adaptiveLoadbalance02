@@ -60,7 +60,7 @@ public class CallbackServiceImpl implements CallbackService {
                     ProviderManager.reset();
                 }//if
             }
-        }, 0, 5000);
+        }, 0, 1000);
     }
 
     /**
@@ -100,6 +100,6 @@ public class CallbackServiceImpl implements CallbackService {
     public void addListener(String key, CallbackListener listener) {
 
         listeners.put(key, listener);
-        listener.receiveServerMsg(getNotifyStr()); // send notification for change
+//        listener.receiveServerMsg(getNotifyStr()); // send notification for change
     }
 }
