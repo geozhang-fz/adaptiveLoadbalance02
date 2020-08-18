@@ -1,8 +1,11 @@
 package com.aliware.tianchi;
 
 public class Context {
+    // provider服务器的编码
     private int id;
+    // 静态权重
     private Integer weight;
+    // 动态权重
     private Integer curWeight;
     private static Integer position = 0;
 

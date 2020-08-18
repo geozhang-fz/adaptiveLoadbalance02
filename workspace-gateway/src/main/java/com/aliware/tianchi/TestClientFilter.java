@@ -8,8 +8,6 @@ import org.apache.dubbo.rpc.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author daofeng.xjf
- * <p>
  * 客户端过滤器
  * 可选接口
  * 用户可以在Gateway服务器端拦截请求和响应,捕获 rpc 调用时产生、服务端返回的已知异常。
@@ -17,12 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
 
-    private long avgTime = 1000;
-
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         // 获取invoker对应的provider服务器可用线程数
-        AtomicInteger limiter = GatewayManager.getAtomicInteger(invoker);
+        AtomicInteger limiter = GatewayManager.getLimiter(invoker);
         ProviderLoadInfo providerLoadInfo = GatewayManager.getProviderLoadInfo(invoker);
 
         /* 若为空，limitMap中无记录，表示初次调用该provider服务器 */
@@ -35,12 +31,23 @@ public class TestClientFilter implements Filter {
 
         /* 否则，limitMap中存在记录，非初次调用 */
         // 记录远程调用的开始时间
-        long startTime = System.currentTimeMillis();
+//        long startTime = System.currentTimeMillis();
         // 该provider服务器可用线程数-1
         limiter.decrementAndGet();
 
         // 获取远程调用的结果
         Result result = invoker.invoke(invocation);
+
+        if(result instanceof AsyncRpcResult){
+            AsyncRpcResult asyncResult = (AsyncRpcResult) result;
+            // 异步等待结果
+            asyncResult.getResultFuture().whenComplete((actual, t) -> {
+                // 服务端可用线程数+1
+                limiter.incrementAndGet();
+//                long endTime = System.currentTimeMillis();
+//                long timeSpent = endTime - startTime;
+            });
+        }
         return result;
     }
 

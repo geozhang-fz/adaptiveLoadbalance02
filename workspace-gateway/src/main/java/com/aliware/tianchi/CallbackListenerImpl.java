@@ -16,7 +16,7 @@ public class CallbackListenerImpl implements CallbackListener {
     @Override
     public void receiveServerMsg(String msg) {
 
-        System.out.println("\nreceive msg from provider: " + msg);
+//        System.out.println("\nreceive msg from provider: " + msg);
 
         // 传入接收到的provider服务器的消息
         GatewayManager.updateProviderLoadInfo(msg);

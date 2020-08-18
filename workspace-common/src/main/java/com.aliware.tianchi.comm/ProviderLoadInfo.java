@@ -1,8 +1,5 @@
 package com.aliware.tianchi.comm;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -12,7 +9,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ProviderLoadInfo {
     // 该provider服务器级别：large、medium、small
     private String quota = null;
-    public static Map<String, String> QUOTA_TO_PORT = new HashMap<String, String>();
 
     // provider服务器的线程数量
     private int providerThreadNum = 0;
@@ -22,30 +18,16 @@ public class ProviderLoadInfo {
     private AtomicLong reqCount = new AtomicLong(0);
     // 当前任务数量
     private AtomicLong activeThreadNum = new AtomicLong(0);
-    // 总耗时(上一个5秒)
-//    private AtomicLong spendTimeTotal = new AtomicLong(0);
-    private AtomicInteger curWeight = new AtomicInteger(0);
-
-    public AtomicInteger getCurWeight() {
-        return curWeight;
-    }
-
-
-    static {
-        QUOTA_TO_PORT.put("small", "20880");
-        QUOTA_TO_PORT.put("medium", "20870");
-        QUOTA_TO_PORT.put("large", "20890");
-    }
 
     /**
-     * 构造方法
+     * 构造方法：供Provider端使用
      */
     public ProviderLoadInfo() {
 
     }
 
     /**
-     * 构造方法
+     * 构造方法，供Gateway端使用
      * @param quota
      * @param providerThreadNum
      */
@@ -67,7 +49,26 @@ public class ProviderLoadInfo {
     }//ProviderLoadInfo
 
 
+    /* Methods */
+    /**
+     * 将quota转换成对应的port
+     * @param quota
+     * @return
+     */
+    public static String mapQuotaToPort(String quota) {
+        String port = null;
+        if (quota.equals("small")) {
+            port = "20880";
+        } else if (quota.equals("medium")) {
+            port = "20870";
+        } else {
+            port = "20890";
+        }
+        return port;
+    }
 
+
+    /* Getters & Setters */
     public String getQuota() {
         return quota;
     }

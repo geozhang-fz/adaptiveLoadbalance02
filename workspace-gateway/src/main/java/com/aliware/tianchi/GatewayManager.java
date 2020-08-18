@@ -3,6 +3,8 @@ package com.aliware.tianchi;
 import com.aliware.tianchi.comm.ProviderLoadInfo;
 import org.apache.dubbo.rpc.Invoker;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,9 +15,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GatewayManager {
     // key: IP:Port, 该provider服务器的地址，value: ProviderInfo对象
-    public static Map<String, ProviderLoadInfo> loadInfoMaps = new ConcurrentHashMap<>();
+    private static final Map<String, ProviderLoadInfo> LOAD_INFO_MAP = new ConcurrentHashMap<>();
     // key: IP:Port, 该provider服务器的地址，value：该provider服务器可用线程数
-    private static Map<String, AtomicInteger> limitMap = new ConcurrentHashMap<String,AtomicInteger>();
+    private static final Map<String, AtomicInteger> LIMITER_MAP = new ConcurrentHashMap<String,AtomicInteger>();
 
 
 //    private static final String HOST_PREFIX = "provider-";
@@ -27,8 +29,8 @@ public class GatewayManager {
      * @return
      */
     public static ProviderLoadInfo getProviderLoadInfo(Invoker<?> invoker) {
-        String add = invoker.getUrl().getAddress();
-        ProviderLoadInfo providerLoadInfo = loadInfoMaps.get(add);
+        String addr = invoker.getUrl().getAddress();
+        ProviderLoadInfo providerLoadInfo = LOAD_INFO_MAP.get(addr);
         return providerLoadInfo;
     }
 
@@ -37,9 +39,9 @@ public class GatewayManager {
      * @param invoker
      * @return
      */
-    public static AtomicInteger getAtomicInteger(Invoker<?> invoker) {
-        String add = invoker.getUrl().getAddress();
-        AtomicInteger limiter = limitMap.get(add);
+    public static AtomicInteger getLimiter(Invoker<?> invoker) {
+        String addr = invoker.getUrl().getAddress();
+        AtomicInteger limiter = LIMITER_MAP.get(addr);
         return limiter;
     }
 
@@ -52,41 +54,51 @@ public class GatewayManager {
     public static void updateProviderLoadInfo(String notifyStr) {
 
         // 获取该provider服务器的字符串信息，切割为信息单元
-        String[] providerLoadMsgs = notifyStr.split(",");
+        String[] msgs = notifyStr.split(",");
 
-        // 分别获取当前该provider服务器的信息：
+        /* 获取负载信息 */
         // 级别, 线程总数, 活跃线程数
-        // quota直接获取自系统参数
+        // quota信息直接获取自系统参数
         // CallbackServiceImpl.getNotifyStr()中调用System.getProperty()方法
-        String quota = providerLoadMsgs[0];
+        String quota = msgs[0];
         // 其余的以下信息来自ProviderLoadManager.getProviderLoadInfo()
-        int providerThreadNum = Integer.valueOf(providerLoadMsgs[1]);
-        int activeThreadNum = Integer.valueOf(providerLoadMsgs[2]);
+        int providerThreadNum = Integer.valueOf(msgs[1]);
+        int activeThreadNum = Integer.valueOf(msgs[2]);
 
-        String add = HOST_PREFIX + ":" + ProviderLoadInfo.QUOTA_TO_PORT.get(quota);
-        ProviderLoadInfo providerLoadInfo = loadInfoMaps.get(add);
+        /* 处理负载信息 */
+        // addr = IP + Port
+        String addr = HOST_PREFIX + ":" + ProviderLoadInfo.mapQuotaToPort(quota);
+        ProviderLoadInfo providerLoadInfo = LOAD_INFO_MAP.get(addr);
+
         if (providerLoadInfo == null) {
             // 初始化
-            System.out.println("Initialize the providerLoadInfo " + quota);
+//            System.out.println("Initialize the providerLoadInfo " + quota);
             providerLoadInfo = new ProviderLoadInfo(quota, providerThreadNum);
-            loadInfoMaps.put(add, providerLoadInfo);
+            LOAD_INFO_MAP.put(addr, providerLoadInfo);
         }
 
-        // 更新活跃线程数信息
+        // 更新活跃线程数
         providerLoadInfo.getActiveThreadNum().set(activeThreadNum);
         // 该provider服务器可用线程数为
         // 线程总数 - 活跃线程数
         int availThreadNum = providerThreadNum - activeThreadNum;
 
-        AtomicInteger limiter = limitMap.get(add);
+        // 更新可用线程数
+        AtomicInteger limiter = LIMITER_MAP.get(addr);
         if(limiter == null){
             limiter = new AtomicInteger(availThreadNum);
-            limitMap.put(add, limiter);
+            LIMITER_MAP.put(addr, limiter);
         }else{
             limiter.set(availThreadNum);
         }
+
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String nowStr = sdf.format(now);
+
+        /* 打印推送信息 */
         System.out.println(String.format(
-            "\nGateway服务器端更新负载信息：\n该provider服务器的级别：%s，当前活跃线程数：%s，当前可用线程数：%s",
-            quota, activeThreadNum, availThreadNum));
+            "\n【%s】Gateway服务器端更新负载信息:\n该provider服务器的级别：%s，当前活跃线程数：%s，当前可用线程数：%s",
+            nowStr, quota, activeThreadNum, availThreadNum));
     }
 }

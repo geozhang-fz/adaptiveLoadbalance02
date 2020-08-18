@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 该类实现provider服务器端向Gateway服务器端动态推送消息
  * provider服务器接收Gateway服务器 CallbackListener 的注册，并执行消息推送
- * provider服务器每 5 秒向Gateway服务器端推送消息
+ * provider服务器每 1 秒向Gateway服务器端推送消息
  * （可选接口）
  */
 public class CallbackServiceImpl implements CallbackService {
@@ -60,7 +60,7 @@ public class CallbackServiceImpl implements CallbackService {
                     ProviderManager.reset();
                 }//if
             }
-        }, 0, 5000);
+        }, 0, 1000);
     }
 
     /**
@@ -100,6 +100,6 @@ public class CallbackServiceImpl implements CallbackService {
     public void addListener(String key, CallbackListener listener) {
 
         listeners.put(key, listener);
-        listener.receiveServerMsg(getNotifyStr()); // send notification for change
+//        listener.receiveServerMsg(getNotifyStr()); // send notification for change
     }
 }
