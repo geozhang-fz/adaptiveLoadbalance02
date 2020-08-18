@@ -3,6 +3,8 @@ package com.aliware.tianchi;
 import com.aliware.tianchi.comm.ProviderLoadInfo;
 import org.apache.dubbo.rpc.Invoker;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,7 +56,7 @@ public class GatewayManager {
         // 获取该provider服务器的字符串信息，切割为信息单元
         String[] msgs = notifyStr.split(",");
 
-        /* 获取当前provider服务器的信息 */
+        /* 获取负载信息 */
         // 级别, 线程总数, 活跃线程数
         // quota信息直接获取自系统参数
         // CallbackServiceImpl.getNotifyStr()中调用System.getProperty()方法
@@ -63,9 +65,11 @@ public class GatewayManager {
         int providerThreadNum = Integer.valueOf(msgs[1]);
         int activeThreadNum = Integer.valueOf(msgs[2]);
 
+        /* 处理负载信息 */
         // addr = IP + Port
         String addr = HOST_PREFIX + ":" + ProviderLoadInfo.mapQuotaToPort(quota);
         ProviderLoadInfo providerLoadInfo = LOAD_INFO_MAP.get(addr);
+
         if (providerLoadInfo == null) {
             // 初始化
 //            System.out.println("Initialize the providerLoadInfo " + quota);
@@ -73,12 +77,13 @@ public class GatewayManager {
             LOAD_INFO_MAP.put(addr, providerLoadInfo);
         }
 
-        // 更新活跃线程数信息
+        // 更新活跃线程数
         providerLoadInfo.getActiveThreadNum().set(activeThreadNum);
         // 该provider服务器可用线程数为
         // 线程总数 - 活跃线程数
         int availThreadNum = providerThreadNum - activeThreadNum;
 
+        // 更新可用线程数
         AtomicInteger limiter = LIMITER_MAP.get(addr);
         if(limiter == null){
             limiter = new AtomicInteger(availThreadNum);
@@ -86,8 +91,14 @@ public class GatewayManager {
         }else{
             limiter.set(availThreadNum);
         }
+
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String nowStr = sdf.format(now);
+
+        /* 打印推送信息 */
         System.out.println(String.format(
-            "\nGateway服务器端更新负载信息：\n该provider服务器的级别：%s，当前活跃线程数：%s，当前可用线程数：%s",
-            quota, activeThreadNum, availThreadNum));
+            "\n【%s】Gateway服务器端更新负载信息:\n该provider服务器的级别：%s，当前活跃线程数：%s，当前可用线程数：%s",
+            nowStr, quota, activeThreadNum, availThreadNum));
     }
 }

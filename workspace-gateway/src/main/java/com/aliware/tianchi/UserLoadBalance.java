@@ -33,7 +33,7 @@ public class UserLoadBalance implements LoadBalance {
 
 //        return simpleRandom(invokers);
 
-        return simpleRandomActiveThread(invokers);
+        return randomAvailThreadWeight(invokers);
 
 //        return RoundRobinWeight1(invokers);
 
@@ -75,7 +75,7 @@ public class UserLoadBalance implements LoadBalance {
         return invokers.get(ThreadLocalRandom.current().nextInt(invokers.size()));
     }
 
-    public static <T> Invoker<T> simpleRandomActiveThread(List<Invoker<T>> invokers) {
+    public static <T> Invoker<T> randomAvailThreadWeight(List<Invoker<T>> invokers) {
         int size = invokers.size();
 
         /* 计算总权重 */
@@ -129,7 +129,7 @@ public class UserLoadBalance implements LoadBalance {
 
         // 原始的随机算法兜底
         return invokers.get(ThreadLocalRandom.current().nextInt(invokers.size()));
-    }//simpleRandomActiveThread
+    }//randomAvailThreadWeight
 
     public static <T> Invoker<T> RoundRobinWeight1(List<Invoker<T>> invokers) {
 

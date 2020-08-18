@@ -8,16 +8,12 @@ import org.apache.dubbo.rpc.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author daofeng.xjf
- * <p>
  * 客户端过滤器
  * 可选接口
  * 用户可以在Gateway服务器端拦截请求和响应,捕获 rpc 调用时产生、服务端返回的已知异常。
  */
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
-
-    private long avgTime = 1000;
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {

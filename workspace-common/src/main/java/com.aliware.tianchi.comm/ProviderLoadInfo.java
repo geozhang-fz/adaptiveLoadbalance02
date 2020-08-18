@@ -1,6 +1,5 @@
 package com.aliware.tianchi.comm;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -20,21 +19,15 @@ public class ProviderLoadInfo {
     // 当前任务数量
     private AtomicLong activeThreadNum = new AtomicLong(0);
 
-    private AtomicInteger curWeight = new AtomicInteger(0);
-
-    public AtomicInteger getCurWeight() {
-        return curWeight;
-    }
-
     /**
-     * 构造方法
+     * 构造方法：供Provider端使用
      */
     public ProviderLoadInfo() {
 
     }
 
     /**
-     * 构造方法
+     * 构造方法，供Gateway端使用
      * @param quota
      * @param providerThreadNum
      */
@@ -57,7 +50,6 @@ public class ProviderLoadInfo {
 
 
     /* Methods */
-
     /**
      * 将quota转换成对应的port
      * @param quota
